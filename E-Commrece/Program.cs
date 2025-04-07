@@ -1,18 +1,21 @@
 
+using Domain.Contracts;
 using Microsoft.EntityFrameworkCore;
+using Persistence;
 using Persistence.Data;
 
 namespace E_Commrece
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddScoped<IDbInitializer,DbInitializer>();
             builder.Services.AddDbContext<StoreContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -23,6 +26,7 @@ namespace E_Commrece
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+           await InitializeDBAsync(app);
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -39,6 +43,13 @@ namespace E_Commrece
             app.MapControllers();
 
             app.Run();
+            async Task InitializeDBAsync(WebApplication app)
+            {
+                using var scope = app.Services.CreateScope();
+                var dbintializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+                await dbintializer.InitializeAsync();
+            }
         }
+       
     }
 }
