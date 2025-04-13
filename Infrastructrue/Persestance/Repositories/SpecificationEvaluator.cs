@@ -31,6 +31,10 @@ namespace Persistence.Repositories
                 query = query.OrderBy(specfications.OrderBy);
             else if (specfications.OrderByDescinding is not null)
                 query = query.OrderByDescending(specfications.OrderByDescinding);
+            if (specfications.IsPaginated)
+            {
+                query=query.Skip(specfications.Skip).Take(specfications.Take);
+            }
             return query;
         }
     }

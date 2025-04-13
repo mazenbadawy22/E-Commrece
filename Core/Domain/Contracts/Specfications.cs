@@ -11,8 +11,16 @@ namespace Domain.Contracts
     {
         public Expression<Func<T,bool>>? Criteria { get; }
         public List<Expression<Func<T, object>>> IncludeExpressions { get; } = new();
+        #region FilterAndSort
         public Expression<Func<T, object>> OrderBy { get; private set; }
         public Expression<Func<T, object>> OrderByDescinding { get; private set; }
+        #endregion
+        #region Pagination
+        public int Skip { get;  set; }
+        public int Take { get; set; }
+        public bool IsPaginated { get; set; }
+        
+        #endregion
         protected Specfications(Expression<Func<T,bool>>?  criteria)
         {
             Criteria = criteria;
@@ -26,6 +34,11 @@ namespace Domain.Contracts
         protected void SetOrderByDescinding(Expression<Func<T, object>> expression)
 
           => OrderByDescinding = expression;
-
+        protected void ApplyPagination(int PageIndex , int PageSize)
+        {
+            IsPaginated = true;
+            Take = PageSize;
+            Skip = (PageIndex - 1) * PageSize;
+        }
     }
 }
