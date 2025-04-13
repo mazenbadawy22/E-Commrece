@@ -3,6 +3,9 @@ using Domain.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Persistence.Data;
+using Persistence.Repositories;
+using Services;
+using Services.Abstractions;
 
 namespace E_Commrece
 {
@@ -14,13 +17,19 @@ namespace E_Commrece
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
-            builder.Services.AddScoped<IDbInitializer,DbInitializer>();
+            builder.Services.AddControllers().AddApplicationPart(typeof(Persentation.AssmblyRefrence).Assembly);
+            #region ConfigueServices
+            builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+            builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
+            builder.Services.AddScoped<IServiceManager,ServiceManager>();
+            builder.Services.AddAutoMapper(typeof(Services.AssmblyRefrence).Assembly);
             builder.Services.AddDbContext<StoreContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-            });
-                
+            }); 
+
+            #endregion
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -34,6 +43,7 @@ namespace E_Commrece
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            app.UseStaticFiles();
 
             app.UseHttpsRedirection();
 
