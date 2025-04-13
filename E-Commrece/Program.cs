@@ -1,5 +1,8 @@
 
 using Domain.Contracts;
+using E_Commrece.Factories;
+using E_Commrece.Middlewares;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Persistence.Data;
@@ -20,13 +23,18 @@ namespace E_Commrece
             builder.Services.AddControllers().AddApplicationPart(typeof(Persentation.AssmblyRefrence).Assembly);
             #region ConfigueServices
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
-            builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
-            builder.Services.AddScoped<IServiceManager,ServiceManager>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IServiceManager, ServiceManager>();
             builder.Services.AddAutoMapper(typeof(Services.AssmblyRefrence).Assembly);
             builder.Services.AddDbContext<StoreContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-            }); 
+            });
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory=ApiResponseFactory.CustomValidationErrors;
+            
+            });
 
             #endregion
 
@@ -35,6 +43,7 @@ namespace E_Commrece
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+            app.UseMiddleware<GlobalExceptionHandlingMiddleWare>();
            await InitializeDBAsync(app);
 
             // Configure the HTTP request pipeline.
