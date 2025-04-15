@@ -1,5 +1,6 @@
 
 using Domain.Contracts;
+using E_Commrece.Extentions;
 using E_Commrece.Factories;
 using E_Commrece.Middlewares;
 using Microsoft.AspNetCore.Mvc;
@@ -20,21 +21,12 @@ namespace E_Commrece
 
             // Add services to the container.
 
-            builder.Services.AddControllers().AddApplicationPart(typeof(Persentation.AssmblyRefrence).Assembly);
-            #region ConfigueServices
-            builder.Services.AddScoped<IDbInitializer, DbInitializer>();
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IServiceManager, ServiceManager>();
-            builder.Services.AddAutoMapper(typeof(Services.AssmblyRefrence).Assembly);
-            builder.Services.AddDbContext<StoreContext>(options =>
-            {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-            });
-            builder.Services.Configure<ApiBehaviorOptions>(options =>
-            {
-                options.InvalidModelStateResponseFactory=ApiResponseFactory.CustomValidationErrors;
             
-            });
+            #region ConfigueServices
+            builder.Services.AddInfrastructureService(builder.Configuration);
+            builder.Services.AddCoreServices();
+            builder.Services.AddPresentationServices();
+
 
             #endregion
 
@@ -42,10 +34,12 @@ namespace E_Commrece
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            #region Build
             var app = builder.Build();
-            app.UseMiddleware<GlobalExceptionHandlingMiddleWare>();
-           await InitializeDBAsync(app);
-
+            #endregion
+            #region MiddleWares
+             app.UseCustomMiddleWareExceptions();
+            await app.SeedDbAsync();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -62,12 +56,11 @@ namespace E_Commrece
             app.MapControllers();
 
             app.Run();
-            async Task InitializeDBAsync(WebApplication app)
-            {
-                using var scope = app.Services.CreateScope();
-                var dbintializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
-                await dbintializer.InitializeAsync();
-            }
+            
+            #endregion
+
+
+
         }
        
     }
