@@ -1,11 +1,13 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
 using Shared;
+using Shared.ErrorModels;
 
 namespace Persentation
 {
@@ -31,6 +33,10 @@ namespace Persentation
             var Types = await _serviceManager.ProductService.GetAllTypesAsync();
             return Ok(Types);
         }
+        [ProducesResponseType(typeof(ErrorDetails),(int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(ErrorDetails), (int)HttpStatusCode.InternalServerError)]
+        [ProducesResponseType(typeof(ValidationErrorResponse), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ProductResultDto), (int)HttpStatusCode.OK)]
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductResultDto>> GetProduct(int id)
         {

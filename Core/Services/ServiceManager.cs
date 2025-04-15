@@ -12,10 +12,14 @@ namespace Services
     public class ServiceManager : IServiceManager
     {
         private readonly Lazy<IProductService> _productService;
-        public ServiceManager(IUnitOfWork unitOfWork,IMapper mapper)
+        private readonly Lazy<IBasketServices> _basketServices;
+        public ServiceManager(IUnitOfWork unitOfWork,IMapper mapper,IBasketRepository basketRepository)
         {
-            _productService = new Lazy<IProductService>(() => new ProductServices(unitOfWork, mapper)); 
+            _productService = new Lazy<IProductService>(() => new ProductServices(unitOfWork, mapper));
+            _basketServices = new Lazy<IBasketServices>(() => new BasketServices(basketRepository, mapper));
         }
         public IProductService ProductService => _productService.Value;
+
+        public IBasketServices basketServices => _basketServices.Value;
     }
 }
