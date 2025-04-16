@@ -11,9 +11,8 @@ using Shared.ErrorModels;
 
 namespace Persentation
 {
-    [ApiController]
-    [Route("/api/[controller]")]
-    public class ProductController(IServiceManager _serviceManager) :ControllerBase
+  
+    public class ProductController(IServiceManager _serviceManager) :ApiController
     {
         [HttpGet]
         public async Task<ActionResult<Paginated<ProductResultDto>>> GetAllProducts([FromQuery]ProductParameterSpceifications parameters)
@@ -33,10 +32,7 @@ namespace Persentation
             var Types = await _serviceManager.ProductService.GetAllTypesAsync();
             return Ok(Types);
         }
-        [ProducesResponseType(typeof(ErrorDetails),(int)HttpStatusCode.NotFound)]
-        [ProducesResponseType(typeof(ErrorDetails), (int)HttpStatusCode.InternalServerError)]
-        [ProducesResponseType(typeof(ValidationErrorResponse), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(ProductResultDto), (int)HttpStatusCode.OK)]
+        
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductResultDto>> GetProduct(int id)
         {
