@@ -24,7 +24,7 @@ namespace E_Commrece
             
             #region ConfigueServices
             builder.Services.AddInfrastructureService(builder.Configuration);
-            builder.Services.AddCoreServices();
+            builder.Services.AddCoreServices(builder.Configuration);
             builder.Services.AddPresentationServices();
 
 
@@ -49,6 +49,7 @@ namespace E_Commrece
             app.UseStaticFiles();
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

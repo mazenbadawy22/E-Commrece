@@ -10,6 +10,7 @@ namespace E_Commrece.Extentions
             using var scope = app.Services.CreateScope();
             var dbintializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
             await dbintializer.InitializeAsync();
+            await dbintializer.InitializeIdentityAsync();
             return app;
         }
         public static WebApplication UseCustomMiddleWareExceptions(this WebApplication app)

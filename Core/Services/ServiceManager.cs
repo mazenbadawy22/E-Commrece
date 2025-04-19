@@ -5,7 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Domain.Contracts;
+using Domain.Entities.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Services.Abstractions;
+using Shared.Security;
 
 namespace Services
 {
@@ -13,13 +18,17 @@ namespace Services
     {
         private readonly Lazy<IProductService> _productService;
         private readonly Lazy<IBasketServices> _basketServices;
-        public ServiceManager(IUnitOfWork unitOfWork,IMapper mapper,IBasketRepository basketRepository)
+        private readonly Lazy<IAuthenticationService> _authenticationService;
+        public ServiceManager(IUnitOfWork unitOfWork,IMapper mapper,IBasketRepository basketRepository,UserManager<User> userManager,IOptions<JwtOptions> options,IConfiguration configuration)
         {
             _productService = new Lazy<IProductService>(() => new ProductServices(unitOfWork, mapper));
             _basketServices = new Lazy<IBasketServices>(() => new BasketServices(basketRepository, mapper));
+            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(userManager,configuration,options));
         }
         public IProductService ProductService => _productService.Value;
 
         public IBasketServices basketServices => _basketServices.Value;
+
+        public IAuthenticationService authenticationService => _authenticationService.Value;
     }
 }

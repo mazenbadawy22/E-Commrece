@@ -8,7 +8,7 @@ namespace E_Commrece.Middlewares
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<GlobalExceptionHandlingMiddleWare> _logger;
-
+        
         public GlobalExceptionHandlingMiddleWare(RequestDelegate next, ILogger<GlobalExceptionHandlingMiddleWare> logger)
         {
             _next = next;
@@ -44,17 +44,27 @@ namespace E_Commrece.Middlewares
         {
             httpContext.Response.StatusCode=(int)HttpStatusCode.InternalServerError;
             httpContext.Response.ContentType = "application/json";
+            var response = new ErrorDetails
+            {
+                
+                ErrorMessage = exception.Message,
+            };
             httpContext.Response.StatusCode = exception switch
             {
                 NotFoundException => (int)HttpStatusCode.NotFound,
-                _=>(int) HttpStatusCode.InternalServerError
+                UnAuthorizedExcptions => (int)HttpStatusCode.Unauthorized,
+                RegisterValidationExcption validationExcption => handleValidationExcption(validationExcption, response),
+                _ => (int)HttpStatusCode.InternalServerError
             };
-            var response = new ErrorDetails
-            {
-                StatusCode = httpContext.Response.StatusCode,
-                ErrorMessage = exception.Message,
-            }.ToString();
-            await httpContext.Response.WriteAsync(response);
+            
+            response.StatusCode=httpContext.Response.StatusCode;
+            await httpContext.Response.WriteAsync(response.ToString());
+        }
+
+        private int handleValidationExcption(RegisterValidationExcption validationExcption, ErrorDetails response)
+        {
+            response.Errors=validationExcption.Errors;
+            return (int)HttpStatusCode.BadRequest;
         }
     }
 }
