@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Domain.Contracts;
 using Domain.Entities;
 using Domain.Entities.Identity;
+using Domain.Entities.OrderEntites;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
@@ -58,6 +59,16 @@ namespace Persistence
                     if (Product is not null && Product.Any())
                     {
                         await _storeContext.Products.AddRangeAsync(Product);
+                        await _storeContext.SaveChangesAsync();
+                    }
+                }
+                if (!_storeContext.DeliveryMethods.Any())
+                {
+                    var DeliveyData = await File.ReadAllTextAsync("..\\Infrastructrue\\Persestance\\Data\\Seeding\\delivery (1).json");
+                    var Data = JsonSerializer.Deserialize<List<DeliveryMethod>>(DeliveyData);
+                    if (Data is not null && Data.Any()) 
+                    {
+                        await _storeContext.DeliveryMethods.AddRangeAsync(Data);
                         await _storeContext.SaveChangesAsync();
                     }
                 }
