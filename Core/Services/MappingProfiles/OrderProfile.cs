@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using Domain.Entities.Identity;
 using Domain.Entities.OrderEntites;
 using Shared.Order;
+using Shared.Security;
 
 namespace Services.MappingProfiles
 {
@@ -31,6 +33,7 @@ namespace Services.MappingProfiles
             #region DeliveryMethod
             CreateMap<DeliveryMethod, DeliveryMethodDto>().ReverseMap();
             #endregion
+            CreateMap<Address, AddressDto>().ReverseMap();
         }
     }
 }
